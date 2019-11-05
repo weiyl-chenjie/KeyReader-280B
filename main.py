@@ -143,10 +143,8 @@ class MyWindow(QMainWindow):
         while step < 5:
             self.Ui_MainWindow.label_status.setText('自动校准：请插入%s号钥匙' % step)
             if self.key_is_ready():  # 如果感应到钥匙插入
-                # res, frame = self._thread.cap.read()
-                frame = self.get_key_capture()
-                img = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
-                self.Ui_MainWindow.label_show_image.setPixmap(QPixmap.fromImage(img))
+                self.get_key_capture()
+                self.Ui_MainWindow.label_show_image.setPixmap(QPixmap('key.jpg'))
                 keyid = self.edge_detect(self_calibration=True)
                 if step == 1:
                     one = keyid
@@ -495,7 +493,8 @@ class MyWindow(QMainWindow):
     def get_key_capture(self):
         pos = eval(self.conf.read_config(product='config', section="capture_region", name="position"))
         img = ImageGrab.grab(pos)
-        return img
+        img.save('key.jpg')
+        return cv.imread("key.jpg")
 
     # 捕获，测量
     def capture(self):
@@ -576,7 +575,8 @@ class VideoThread(QThread):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MyWindow()
-    window.showMaximized()
+    # window.showMaximized()
+    window.show()
     sys.exit(app.exec_())
 
 
