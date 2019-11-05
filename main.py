@@ -9,6 +9,9 @@ import numpy as np
 from PySide2.QtWidgets import QMainWindow, QWidget, QApplication
 from PySide2.QtGui import Qt, QImage, QPixmap
 from PySide2.QtCore import QTimer, QThread, Signal
+import keyboard
+import pyautogui as pag
+from PIL import ImageGrab
 # 自己的包
 from UI2PY.MainWindow import Ui_MainWindow
 from set_calibration_line import SetCalibrationLine
@@ -25,8 +28,8 @@ class MyWindow(QMainWindow):
         self.set_calibration_line_pane = SetCalibrationLine()
         self.set_calibration_line_pane.setWindowModality(Qt.ApplicationModal)  # 设置为模态窗口
 
-        self._thread = VideoThread()
-        self._thread.signal.connect(self.show_video)
+        # self._thread = VideoThread()
+        # self._thread.signal.connect(self.show_video)
         self.conf = Config()
 
         # 获取厂家名
@@ -90,12 +93,12 @@ class MyWindow(QMainWindow):
         self.Ui_MainWindow.label_status.setText('连接PLC...')
         QApplication.processEvents()
         if self.siemens.ConnectServer().IsSuccess:  # 若连接成功
-            self._thread.working = True
+            # self._thread.working = True
             self.Ui_MainWindow.label_status.setText('PLC连接成功')
-            if not self._thread.cap.isOpened():
-                self._thread.cap.open(0)
-            self._thread.working = True
-            self._thread.start()
+            # if not self._thread.cap.isOpened():
+            #     self._thread.cap.open(0)
+            # self._thread.working = True
+            # self._thread.start()
             self.Ui_MainWindow.label_status.setText('等待钥匙插入')
             self.Ui_MainWindow.label_status.setStyleSheet('background-color: rgb(255, 255, 127);')
         else:
@@ -135,12 +138,13 @@ class MyWindow(QMainWindow):
 
     def self_calibration(self):
         # 暂停读取摄像头进程，并释放摄像头
-        self._thread.working = False
+        # self._thread.working = False
         step = 1
         while step < 5:
             self.Ui_MainWindow.label_status.setText('自动校准：请插入%s号钥匙' % step)
             if self.key_is_ready():  # 如果感应到钥匙插入
-                res, frame = self._thread.cap.read()
+                # res, frame = self._thread.cap.read()
+                frame = self.get_key_capture()
                 img = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
                 self.Ui_MainWindow.label_show_image.setPixmap(QPixmap.fromImage(img))
                 keyid = self.edge_detect(self_calibration=True)
@@ -167,7 +171,7 @@ class MyWindow(QMainWindow):
 
     def set_calibration_line(self):
         # 暂停读取摄像头进程，并释放摄像头，然后调用设置校准线的窗口
-        self._thread.__del__()
+        # self._thread.__del__()
         self.set_calibration_line_pane.setup()
         self.set_calibration_line_pane.show()
 
@@ -175,9 +179,13 @@ class MyWindow(QMainWindow):
         if self.key_is_ready():  # 如果有钥匙进入
             # 捕获图像并判断钥匙号
             self.capture()
-        else:
-            img = QImage(self._thread.img, self._thread.img.shape[1], self._thread.img.shape[0], QImage.Format_RGB888)
+            img = self.get_key_capture()
+            img = QImage(img, img.shape[1], img.shape[0], QImage.Format_RGB888)
             self.Ui_MainWindow.label_show_image.setPixmap(QPixmap.fromImage(img))
+        else:
+            # img = QImage(self._thread.img, self._thread.img.shape[1], self._thread.img.shape[0], QImage.Format_RGB888)
+            # self.Ui_MainWindow.label_show_image.setPixmap(QPixmap.fromImage(img))
+            pass
         # print("发送信号了")
 
     def manual_capture(self):
@@ -189,7 +197,8 @@ class MyWindow(QMainWindow):
         cv.waitKey()
         cv.destroyAllWindows()
 
-    def has_key_sensor_changed(self, evt):
+    @staticmethod
+    def has_key_sensor_changed(evt):
         conf = Config()
         if evt:  # 如果选择了钥匙到位传感器
             conf.update_config(product='config', section='product', name='has_key_sensor', value='YES')
@@ -210,15 +219,29 @@ class MyWindow(QMainWindow):
             self.Ui_MainWindow.label_status.setText('PLC连接失败！')
             self.Ui_MainWindow.label_status.setStyleSheet('background-color: rgb(255, 0, 0);')
 
+    # 选择图片的识别区域
+    def select_capture_region(self):
+        # self._thread.__del__()
+
+        if keyboard.wait(hotkey='ctrl+alt') == None:
+            x1, y1 = pag.position()
+            print(pag.position())
+            if keyboard.wait(hotkey='ctrl+alt') == None:
+                x2, y2 = pag.position()
+                print(pag.position())
+        pos_new = str((x1, y1, x2, y2))
+        self.conf.update_config(product='config', section='capture_region', name='position', value=pos_new)
+
     # 自定义函数
     # 边缘检测
     def edge_detect(self, self_calibration=False, check_key_is_ready=False, is_capture=False):
-        if self._thread.working:  # 如果线程正在工作
-            original_img = self._thread.img
-        else:  
-            _, original_img = self._thread.cap.read()
-        original_img = cv.flip(original_img, 1)  # 水平翻转
-        original_img = cv.imread("key.jpg")
+        # if self._thread.working:  # 如果线程正在工作
+        #     original_img = self._thread.img
+        # else:
+        #     _, original_img = self._thread.cap.read()
+        original_img = self.get_key_capture()
+        # original_img = cv.flip(original_img, 1)  # 水平翻转
+        # original_img = cv.imread("key.jpg")
         # 阈值
         min_threshold = int(self.conf.read_config(product=self.product, section='canny', name='min_threshold'))
         max_threshold = int(self.conf.read_config(product=self.product, section='canny', name='max_threshold'))
@@ -467,6 +490,12 @@ class MyWindow(QMainWindow):
             self.Ui_MainWindow.label_status.setText('get_keycode:%s' % str(e))
             self.Ui_MainWindow.label_status.setStyleSheet('background-color: rgb(255, 0, 0);')
             return '----'
+
+    # 截取钥匙图片
+    def get_key_capture(self):
+        pos = eval(self.conf.read_config(product='config', section="capture_region", name="position"))
+        img = ImageGrab.grab(pos)
+        return img
 
     # 捕获，测量
     def capture(self):

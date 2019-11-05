@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'MainWindow.ui',
 # licensing of 'MainWindow.ui' applies.
 #
-# Created: Thu Oct 24 11:13:09 2019
+# Created: Tue Nov  5 14:25:42 2019
 #      by: pyside2-uic  running on PySide2 5.13.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -156,7 +156,7 @@ class Ui_MainWindow(object):
         font.setFamily("华文楷体")
         font.setPointSize(16)
         self.pushButton_set_calibration_line.setFont(font)
-        self.pushButton_set_calibration_line.setStyleSheet("background-color: rgb(131, 131, 131);")
+        self.pushButton_set_calibration_line.setStyleSheet("")
         self.pushButton_set_calibration_line.setObjectName("pushButton_set_calibration_line")
         self.verticalLayout.addWidget(self.pushButton_set_calibration_line)
         self.pushButton_self_calibrate = QtWidgets.QPushButton(self.layoutWidget1)
@@ -164,7 +164,7 @@ class Ui_MainWindow(object):
         font.setFamily("华文楷体")
         font.setPointSize(16)
         self.pushButton_self_calibrate.setFont(font)
-        self.pushButton_self_calibrate.setStyleSheet("background-color: rgb(131, 131, 131);")
+        self.pushButton_self_calibrate.setStyleSheet("")
         self.pushButton_self_calibrate.setObjectName("pushButton_self_calibrate")
         self.verticalLayout.addWidget(self.pushButton_self_calibrate)
         self.pushButton_manual_calibrate = QtWidgets.QPushButton(self.layoutWidget1)
@@ -172,7 +172,7 @@ class Ui_MainWindow(object):
         font.setFamily("华文楷体")
         font.setPointSize(16)
         self.pushButton_manual_calibrate.setFont(font)
-        self.pushButton_manual_calibrate.setStyleSheet("background-color: rgb(131, 131, 131);")
+        self.pushButton_manual_calibrate.setStyleSheet("")
         self.pushButton_manual_calibrate.setObjectName("pushButton_manual_calibrate")
         self.verticalLayout.addWidget(self.pushButton_manual_calibrate)
         self.pushButton_check_image = QtWidgets.QPushButton(self.layoutWidget1)
@@ -180,7 +180,7 @@ class Ui_MainWindow(object):
         font.setFamily("华文楷体")
         font.setPointSize(16)
         self.pushButton_check_image.setFont(font)
-        self.pushButton_check_image.setStyleSheet("background-color: rgb(131, 131, 131);")
+        self.pushButton_check_image.setStyleSheet("")
         self.pushButton_check_image.setObjectName("pushButton_check_image")
         self.verticalLayout.addWidget(self.pushButton_check_image)
         self.pushButton_start = QtWidgets.QPushButton(self.layoutWidget1)
@@ -188,7 +188,7 @@ class Ui_MainWindow(object):
         font.setFamily("华文楷体")
         font.setPointSize(16)
         self.pushButton_start.setFont(font)
-        self.pushButton_start.setStyleSheet("background-color: rgb(131, 131, 131);")
+        self.pushButton_start.setStyleSheet("")
         self.pushButton_start.setObjectName("pushButton_start")
         self.verticalLayout.addWidget(self.pushButton_start)
         self.layoutWidget2 = QtWidgets.QWidget(self.centralwidget)
@@ -229,6 +229,13 @@ class Ui_MainWindow(object):
 "color: rgb(200, 194, 15);")
         self.pushButton_plc_connect_test.setObjectName("pushButton_plc_connect_test")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.pushButton_plc_connect_test)
+        self.pushButton_select_image_region = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_select_image_region.setGeometry(QtCore.QRect(10, 650, 187, 37))
+        font = QtGui.QFont()
+        font.setFamily("华文楷体")
+        font.setPointSize(16)
+        self.pushButton_select_image_region.setFont(font)
+        self.pushButton_select_image_region.setObjectName("pushButton_select_image_region")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1600, 26))
@@ -248,6 +255,7 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.checkBox_key_sensor, QtCore.SIGNAL("toggled(bool)"), MainWindow.has_key_sensor_changed)
         QtCore.QObject.connect(self.pushButton_change_ip, QtCore.SIGNAL("clicked()"), MainWindow.change_ip_plc)
         QtCore.QObject.connect(self.pushButton_plc_connect_test, QtCore.SIGNAL("clicked()"), MainWindow.plc_connect_test)
+        QtCore.QObject.connect(self.pushButton_select_image_region, QtCore.SIGNAL("clicked()"), MainWindow.select_capture_region)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -273,6 +281,7 @@ class Ui_MainWindow(object):
         self.lineEdit_IP_PLC.setText(QtWidgets.QApplication.translate("MainWindow", "192.168.0.255", None, -1))
         self.pushButton_change_ip.setText(QtWidgets.QApplication.translate("MainWindow", "设置为当前值", None, -1))
         self.pushButton_plc_connect_test.setText(QtWidgets.QApplication.translate("MainWindow", "测试连接", None, -1))
+        self.pushButton_select_image_region.setText(QtWidgets.QApplication.translate("MainWindow", "选择截图区域", None, -1))
 
 
 if __name__ == "__main__":

@@ -349,7 +349,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(131, 131, 131);</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>设定标定线</string>
@@ -365,7 +365,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(131, 131, 131);</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>校准(自动调参)</string>
@@ -381,7 +381,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(131, 131, 131);</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>手动调参</string>
@@ -397,7 +397,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(131, 131, 131);</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>查看图像</string>
@@ -413,7 +413,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(131, 131, 131);</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>开始</string>
@@ -493,6 +493,25 @@ color: rgb(200, 194, 15);</string>
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QPushButton" name="pushButton_select_image_region">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>650</y>
+      <width>187</width>
+      <height>37</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>华文楷体</family>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>选择截图区域</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -653,6 +672,22 @@ color: rgb(200, 194, 15);</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton_select_image_region</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>select_capture_region()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>192</x>
+     <y>696</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>262</x>
+     <y>691</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>manual_capture()</slot>
@@ -664,5 +699,6 @@ color: rgb(200, 194, 15);</string>
   <slot>has_key_sensor_changed()</slot>
   <slot>change_ip_plc()</slot>
   <slot>plc_connect_test()</slot>
+  <slot>select_capture_region()</slot>
  </slots>
 </ui>
