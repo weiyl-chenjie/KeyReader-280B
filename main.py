@@ -28,8 +28,8 @@ class MyWindow(QMainWindow):
         self.set_calibration_line_pane = SetCalibrationLine()
         self.set_calibration_line_pane.setWindowModality(Qt.ApplicationModal)  # 设置为模态窗口
 
-        # self._thread = VideoThread()
-        # self._thread.signal.connect(self.show_video)
+        self._thread = VideoThread()
+        self._thread.signal.connect(self.show_video)
         self.conf = Config()
 
         # 获取厂家名
@@ -42,6 +42,8 @@ class MyWindow(QMainWindow):
         self.row_number = int(self.conf.read_config('config', 'product', 'row_number'))
         # 是否有钥匙到位传感器
         self.has_key_sensor = self.conf.read_config('config', 'product', 'has_key_sensor').upper() == 'YES'
+        # 钥匙到位传感器上一次的状态
+        self.key_last_status = False
         # # 阈值
         # self.min_threshold = int(self.conf.read_config('canny', 'min_threshold'))
         # self.max_threshold = int(self.conf.read_config('canny', 'max_threshold'))
@@ -177,8 +179,6 @@ class MyWindow(QMainWindow):
         if self.key_is_ready():  # 如果有钥匙进入
             # 捕获图像并判断钥匙号
             self.capture()
-            img = self.get_key_capture()
-            img = QImage(img, img.shape[1], img.shape[0], QImage.Format_RGB888)
         else:
             # img = QImage(self._thread.img, self._thread.img.shape[1], self._thread.img.shape[0], QImage.Format_RGB888)
             # self.Ui_MainWindow.label_show_image.setPixmap(QPixmap.fromImage(img))
@@ -515,9 +515,18 @@ class MyWindow(QMainWindow):
     # 钥匙是否插到位
     def key_is_ready(self):
         if self.has_key_sensor:  # 如果有钥匙到位传感器
-            if self.siemens.ReadBool('I4.5'):  # 读取I4.5，若为True，则返回True
-                return True
-            else:
+            key_is_ready = self.siemens.ReadBool('I4.5').Content
+            if key_is_ready:  # 如果钥匙到位(I4.5)
+                if self.key_last_status:  # 如果之前钥匙已经到位，不做任何处理
+                    pass
+                else:  # 如果之前钥匙未到位，则将标志位置为True
+                    # self.key_is_ready = True
+                    # 将本次的钥匙是否到位传感器的状态作为下一次状态的上一状态
+                    self.key_last_status = True
+                    return True
+            else:  # 如果钥匙未到位，则将标志位置为False
+                # 将本次的钥匙是否到位传感器的状态作为下一次状态的上一状态
+                self.key_last_status = False
                 return False
         else:
             # 最底线的纵坐标(双排齿为左侧竖线横坐标)
@@ -531,6 +540,51 @@ class MyWindow(QMainWindow):
                 return True
             else:
                 return False
+
+
+class VideoThread(QThread):
+    signal = Signal()
+
+    def __init__(self):
+        super(VideoThread, self).__init__()
+        self.working = True  # 工作状态
+        # self.cap = cv.VideoCapture(0)
+        #
+        # if not self.cap.isOpened():
+        #     print('无法打开摄像机')
+        #     exit()
+        #
+        # self.img = np.array([])
+
+    def __del__(self):
+        self.working = False  # 工作状态
+        # When everything done, release the capture
+        # self.cap.release()
+        # cv.destroyAllWindows()
+        self.wait()
+
+    def run(self):
+        # 进行线程任务
+        while self.working:
+            sleep(0.5)
+            # # Capture frame-by-frame
+            # ret, frame = self.cap.read()
+            # frame = cv.flip(frame, 1)  # 水平翻转
+            # # if frame is read correctly ret is True
+            # if not ret:
+            #     print("Can't receive frame (stream end?). Exiting ...")
+            #     break
+            #
+            # # RGB转BGR
+            # frame_bgr = cv.cvtColor(frame, cv.COLOR_RGB2BGR)
+            # # Our operations on the frame come here
+            # gray = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
+            # self.img = frame_bgr
+            # # Display the resulting frame
+            # # cv.imshow('frame', gray)
+            # # if cv.waitKey(1) == ord('q'):
+            # #     break
+            self.signal.emit()  # 发射信号
 
 
 if __name__ == '__main__':
