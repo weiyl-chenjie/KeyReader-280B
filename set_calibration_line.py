@@ -90,9 +90,9 @@ class SetCalibrationLine(QWidget, Ui_Form):
 
     def check(self):
         print('点击了查看')
-        cap = cv.VideoCapture(0)
-        res, original_img = cap.read()
-        original_img = cv.flip(original_img, 1)  # 水平翻转
+        # cap = cv.VideoCapture(0)
+        # res, original_img = cap.read()
+        # original_img = cv.flip(original_img, 1)  # 水平翻转
         original_img = cv.imread("key.jpg")
         # 画线的粗细和类型
         thickness = int(self.conf.read_config(product=self.product, section='line', name='thickness'))

@@ -144,7 +144,7 @@ class MyWindow(QMainWindow):
             self.Ui_MainWindow.label_status.setText('自动校准：请插入%s号钥匙' % step)
             if self.key_is_ready():  # 如果感应到钥匙插入
                 self.get_key_capture()
-                self.Ui_MainWindow.label_show_image.setPixmap(QPixmap('key.jpg'))
+
                 keyid = self.edge_detect(self_calibration=True)
                 if step == 1:
                     one = keyid
@@ -179,7 +179,6 @@ class MyWindow(QMainWindow):
             self.capture()
             img = self.get_key_capture()
             img = QImage(img, img.shape[1], img.shape[0], QImage.Format_RGB888)
-            self.Ui_MainWindow.label_show_image.setPixmap(QPixmap.fromImage(img))
         else:
             # img = QImage(self._thread.img, self._thread.img.shape[1], self._thread.img.shape[0], QImage.Format_RGB888)
             # self.Ui_MainWindow.label_show_image.setPixmap(QPixmap.fromImage(img))
@@ -187,6 +186,9 @@ class MyWindow(QMainWindow):
         # print("发送信号了")
 
     def manual_capture(self):
+        print('manual_capture')
+        # self.Ui_MainWindow.label_status.setText('手动读号')
+        # self.Ui_MainWindow.label_status.setStyleSheet('background-color: rgb(0, 255, 0);')
         keyid, canny = self.edge_detect(is_capture=True)
         keycode = self.get_keycode(keyid)
         self.Ui_MainWindow.lineEdit_key_code.setText(keycode)
@@ -233,6 +235,7 @@ class MyWindow(QMainWindow):
     # 自定义函数
     # 边缘检测
     def edge_detect(self, self_calibration=False, check_key_is_ready=False, is_capture=False):
+        print('edge_detect')
         # if self._thread.working:  # 如果线程正在工作
         #     original_img = self._thread.img
         # else:
@@ -395,7 +398,6 @@ class MyWindow(QMainWindow):
                         (three[1] + ptEnd_bottom[0], ptEnd_bottom[1]), point_color_top, thickness, lineType)
                 cv.line(original_img, (four[1] + ptStart_bottom[0], ptStart_bottom[1]),
                         (four[1] + ptEnd_bottom[0], ptEnd_bottom[1]), point_color_top, thickness, lineType)
-                img = QImage(original_img, original_img.shape[1], original_img.shape[0], QImage.Format_RGB888)
 
                 keyid_left = ''
                 keyid_right = ''
@@ -412,6 +414,7 @@ class MyWindow(QMainWindow):
                         elif i >= pt[1][0] - 1:
                             keyid_left += 'X'
                             key_left.append(i)
+                            break
                 for pt in pts_vertical_right:
                     # x轴的起始坐标
                     # print(pt[0][0], pt[1][0])
@@ -421,8 +424,9 @@ class MyWindow(QMainWindow):
                             key_right.append(i - ptStart_bottom[0])
                             break
                         elif i >= pt[1][0] - 1:
-                            keyid_left += 'X'
+                            keyid_right += 'X'
                             key_right.append(i)
+                            break
                 res = [''] * len(keyid_left) * 2
                 print(key_right, key_left)
                 print(keyid_right, keyid_left)
@@ -441,8 +445,6 @@ class MyWindow(QMainWindow):
         # Canny(): 边缘检测
         img1 = cv.GaussianBlur(original_img, (3, 3), 0)
         canny_to_show = cv.Canny(img1, min_threshold, max_threshold)
-
-        self.Ui_MainWindow.label_show_image.setPixmap(QPixmap.fromImage(img))
         return keyid, canny_to_show
 
     # 获取keyid
@@ -483,6 +485,8 @@ class MyWindow(QMainWindow):
                 c = conn.cursor()
                 rows = c.execute("SELECT keycode FROM '%s' WHERE keyid='%s'" % (self.product, keyid)).fetchall()
                 keycode = rows[0][0]
+                self.Ui_MainWindow.label_status.setText('成功读取钥匙号')
+                self.Ui_MainWindow.label_status.setStyleSheet('background-color: rgb(0, 255, 0);')
                 return keycode
         except Exception as e:
             self.Ui_MainWindow.label_status.setText('get_keycode:%s' % str(e))
@@ -494,10 +498,12 @@ class MyWindow(QMainWindow):
         pos = eval(self.conf.read_config(product='config', section="capture_region", name="position"))
         img = ImageGrab.grab(pos)
         img.save('key.jpg')
+        self.Ui_MainWindow.label_show_image.setPixmap(QPixmap('key.jpg'))
         return cv.imread("key.jpg")
 
     # 捕获，测量
     def capture(self):
+        print('capture')
         sleep(2)
         keyid, canny = self.edge_detect(is_capture=True)
         print(keyid)
@@ -525,51 +531,6 @@ class MyWindow(QMainWindow):
                 return True
             else:
                 return False
-
-
-class VideoThread(QThread):
-    signal = Signal()
-
-    def __init__(self):
-        super(VideoThread, self).__init__()
-        self.working = True  # 工作状态
-        self.cap = cv.VideoCapture(0)
-
-        if not self.cap.isOpened():
-            print('无法打开摄像机')
-            exit()
-
-        self.img = np.array([])
-
-    def __del__(self):
-        self.working = False  # 工作状态
-        # When everything done, release the capture
-        self.cap.release()
-        cv.destroyAllWindows()
-        self.wait()
-
-    def run(self):
-        # 进行线程任务
-        while self.working:
-            sleep(0.1)
-            # Capture frame-by-frame
-            ret, frame = self.cap.read()
-            frame = cv.flip(frame, 1)  # 水平翻转
-            # if frame is read correctly ret is True
-            if not ret:
-                print("Can't receive frame (stream end?). Exiting ...")
-                break
-
-            # RGB转BGR
-            frame_bgr = cv.cvtColor(frame, cv.COLOR_RGB2BGR)
-            # Our operations on the frame come here
-            gray = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
-            self.img = frame_bgr
-            # Display the resulting frame
-            # cv.imshow('frame', gray)
-            # if cv.waitKey(1) == ord('q'):
-            #     break
-            self.signal.emit()  # 发射信号
 
 
 if __name__ == '__main__':
