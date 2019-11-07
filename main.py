@@ -178,7 +178,6 @@ class MyWindow(QMainWindow):
         self.set_calibration_line_pane.show()
 
     def show_video(self):
-        print('线程')
         if self.key_is_ready():  # 如果有钥匙进入
             # 捕获图像并判断钥匙号
             self.capture()
