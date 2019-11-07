@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'MainWindow.ui',
 # licensing of 'MainWindow.ui' applies.
 #
-# Created: Tue Nov  5 14:25:42 2019
+# Created: Wed Nov  6 10:57:28 2019
 #      by: pyside2-uic  running on PySide2 5.13.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,18 +13,18 @@ from PySide2 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1600, 1012)
+        MainWindow.resize(1222, 1010)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox_show_image = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_show_image.setGeometry(QtCore.QRect(290, 190, 1281, 661))
+        self.groupBox_show_image.setGeometry(QtCore.QRect(290, 190, 901, 651))
         font = QtGui.QFont()
         font.setFamily("华文楷体")
         font.setPointSize(16)
         self.groupBox_show_image.setFont(font)
         self.groupBox_show_image.setObjectName("groupBox_show_image")
         self.label_show_image = QtWidgets.QLabel(self.groupBox_show_image)
-        self.label_show_image.setGeometry(QtCore.QRect(9, 29, 1261, 621))
+        self.label_show_image.setGeometry(QtCore.QRect(9, 29, 891, 621))
         self.label_show_image.setObjectName("label_show_image")
         self.groupBox_result = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_result.setGeometry(QtCore.QRect(290, 10, 901, 181))
@@ -136,7 +136,7 @@ class Ui_MainWindow(object):
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.label_status = QtWidgets.QLabel(self.centralwidget)
-        self.label_status.setGeometry(QtCore.QRect(290, 860, 1281, 101))
+        self.label_status.setGeometry(QtCore.QRect(290, 860, 901, 101))
         font = QtGui.QFont()
         font.setFamily("华文楷体")
         font.setPointSize(36)
@@ -238,7 +238,7 @@ class Ui_MainWindow(object):
         self.pushButton_select_image_region.setObjectName("pushButton_select_image_region")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1600, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1222, 26))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)

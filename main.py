@@ -30,6 +30,7 @@ class MyWindow(QMainWindow):
 
         self._thread = VideoThread()
         self._thread.signal.connect(self.show_video)
+        self._thread.start()
         self.conf = Config()
 
         # 获取厂家名
@@ -93,9 +94,10 @@ class MyWindow(QMainWindow):
     # 槽函数
     def start(self):
         self.Ui_MainWindow.label_status.setText('连接PLC...')
+        self.Ui_MainWindow.label_status.setStyleSheet('background-color: rgb(255, 255, 127);')
         QApplication.processEvents()
         if self.siemens.ConnectServer().IsSuccess:  # 若连接成功
-            # self._thread.working = True
+            self._thread.working = True
             self.Ui_MainWindow.label_status.setText('PLC连接成功')
             # if not self._thread.cap.isOpened():
             #     self._thread.cap.open(0)
@@ -176,6 +178,7 @@ class MyWindow(QMainWindow):
         self.set_calibration_line_pane.show()
 
     def show_video(self):
+        print('线程')
         if self.key_is_ready():  # 如果有钥匙进入
             # 捕获图像并判断钥匙号
             self.capture()
@@ -559,7 +562,7 @@ class VideoThread(QThread):
     def __del__(self):
         self.working = False  # 工作状态
         # When everything done, release the capture
-        # self.cap.release()
+        #  self.cap.release()
         # cv.destroyAllWindows()
         self.wait()
 

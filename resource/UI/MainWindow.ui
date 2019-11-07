@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1600</width>
-    <height>1012</height>
+    <width>1222</width>
+    <height>1010</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
      <rect>
       <x>290</x>
       <y>190</y>
-      <width>1281</width>
-      <height>661</height>
+      <width>901</width>
+      <height>651</height>
      </rect>
     </property>
     <property name="font">
@@ -37,7 +37,7 @@
       <rect>
        <x>9</x>
        <y>29</y>
-       <width>1261</width>
+       <width>891</width>
        <height>621</height>
       </rect>
      </property>
@@ -310,7 +310,7 @@
      <rect>
       <x>290</x>
       <y>860</y>
-      <width>1281</width>
+      <width>901</width>
       <height>101</height>
      </rect>
     </property>
@@ -519,7 +519,7 @@ color: rgb(200, 194, 15);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1600</width>
+     <width>1222</width>
      <height>26</height>
     </rect>
    </property>
