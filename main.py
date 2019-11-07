@@ -6,9 +6,9 @@ import sqlite3
 # 第三方库
 import cv2 as cv
 import numpy as np
-from PySide2.QtWidgets import QMainWindow, QWidget, QApplication
+from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
 from PySide2.QtGui import Qt, QImage, QPixmap
-from PySide2.QtCore import QTimer, QThread, Signal
+from PySide2.QtCore import QThread, Signal
 import keyboard
 import pyautogui as pag
 from PIL import ImageGrab
@@ -17,6 +17,7 @@ from UI2PY.MainWindow import Ui_MainWindow
 from set_calibration_line import SetCalibrationLine
 from config import Config
 from HslCommunication import SiemensPLCS, SiemensS7Net
+from sato import ComThread
 
 
 class MyWindow(QMainWindow):
@@ -31,6 +32,8 @@ class MyWindow(QMainWindow):
         self._thread = VideoThread()
         self._thread.signal.connect(self.show_video)
         self._thread.start()
+
+        self.com = ComThread()
         self.conf = Config()
 
         # 获取厂家名
@@ -90,6 +93,29 @@ class MyWindow(QMainWindow):
         self.Ui_MainWindow.checkBox_key_sensor.setChecked(self.has_key_sensor)
         # PLC的ip
         self.Ui_MainWindow.lineEdit_IP_PLC.setText(self.ip_plc)
+
+        if self.com.check_com():  # 如果有串口，则打开指定的串口
+            if self.com.open_com():  # 如果串口打开成功
+                if self.siemens.ConnectServer().IsSuccess:  # 若连接成功
+                    self._thread.working = True
+                    self.Ui_MainWindow.label_status.setText('PLC连接成功')
+                    # if not self._thread.cap.isOpened():
+                    #     self._thread.cap.open(0)
+                    # self._thread.working = True
+                    # self._thread.start()
+                    self.Ui_MainWindow.label_status.setText('等待钥匙插入')
+                    self.Ui_MainWindow.label_status.setStyleSheet('background-color: rgb(255, 255, 127);')
+                else:
+                    self.Ui_MainWindow.label_status.setText('PLC连接失败')
+                    self.Ui_MainWindow.label_status.setStyleSheet('background-color: rgb(255, 0, 0);')
+            else:  # 如果串口打开失败
+                QMessageBox.critical(self, '错误！', '串口打开失败！')
+                self.Ui_MainWindow.label_status.setText('串口打开失败！')
+                self.Ui_MainWindow.label_status.setStyleSheet('background-color: rgb(255, 0, 0);')
+        else:
+            QMessageBox.critical(self, '错误！', '未发现串口！')
+            self.Ui_MainWindow.label_status.setText('未发现串口！')
+            self.Ui_MainWindow.label_status.setStyleSheet('background-color: rgb(255, 0, 0);')
 
     # 槽函数
     def start(self):
@@ -180,7 +206,8 @@ class MyWindow(QMainWindow):
     def show_video(self):
         if self.key_is_ready():  # 如果有钥匙进入
             # 捕获图像并判断钥匙号
-            self.capture()
+            _, keycode = self.capture()
+            self.barcode_print(product=self.product, keycode=keycode)
         else:
             # img = QImage(self._thread.img, self._thread.img.shape[1], self._thread.img.shape[0], QImage.Format_RGB888)
             # self.Ui_MainWindow.label_show_image.setPixmap(QPixmap.fromImage(img))
@@ -513,6 +540,7 @@ class MyWindow(QMainWindow):
         print(keycode)
         self.Ui_MainWindow.lineEdit_key_code.setText(keycode)
         self.Ui_MainWindow.lineEdit_key_id.setText(keyid)
+        return keyid, keycode
 
     # 钥匙是否插到位
     def key_is_ready(self):
@@ -542,6 +570,15 @@ class MyWindow(QMainWindow):
                 return True
             else:
                 return False
+
+    # 条码打印
+    def barcode_print(self, product, keycode):
+        if product == '280B' or product == '281B' or product == '0开头':
+            barcode_bytes = keycode.encode("utf-8")  # 转换为字节格式
+            send_data = b'\x1bA\x1bN\x1bR\x1bR\x1bH070\x1bV01282\x1bL0202\x1bS\x1bB103080*' + barcode_bytes + b'*\x1bH0200\x1bV01369\x1bL0202\x1bS' + barcode_bytes + b'\x1bQ1\x1bZ'
+        self.com.send_data(send_data)
+        self.Ui_MainWindow.label_status.setText('等待读取钥匙号')
+        self.Ui_MainWindow.label_status.setStyleSheet('background-color: rgb(255, 255, 127);')
 
 
 class VideoThread(QThread):
