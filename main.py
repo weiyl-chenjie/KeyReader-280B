@@ -251,7 +251,6 @@ class MyWindow(QMainWindow):
     # 选择图片的识别区域
     def select_capture_region(self):
         # self._thread.__del__()
-
         if keyboard.wait(hotkey='ctrl+alt') == None:
             x1, y1 = pag.position()
             print(pag.position())
@@ -509,6 +508,24 @@ class MyWindow(QMainWindow):
 
     # 获取keycode
     def get_keycode(self, keyid):
+        if self.product == '0开头':  # 如果是0开头的，奇数位需要反转(1变4、2变3、3变2、4变1)
+            keyid_odd = keyid[0::2]  # 奇数位
+            keyid_even = keyid[1::2]  # 偶数位
+            keyid_odd_changed = ''
+            for i in keyid_odd:
+                if i == '1':
+                    i = '4'
+                elif i == '2':
+                    i = '3'
+                elif i == '3':
+                    i = '2'
+                elif i == '4':
+                    i = '1'
+                keyid_odd_changed += i
+            res = [''] * len(keyid_odd) * 2
+            res[::2] = keyid_odd_changed
+            res[1::2] = keyid_even
+            keyid = ''.join(res)
         try:
             with sqlite3.connect('keyid.db') as conn:
                 c = conn.cursor()
